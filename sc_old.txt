@@ -1,0 +1,36 @@
+import os
+import json
+import subprocess
+
+# GitHub repository URL
+GITHUB_REPO_URL = "https://github.com/Blazemach-007/nlp-intro.git"
+LOCAL_REPO_PATH = "nlp-intro"
+
+# Clone the repository if it doesn't exist
+if not os.path.exists(LOCAL_REPO_PATH):
+    subprocess.run(["git", "clone", GITHUB_REPO_URL])
+
+# Dictionary to store file data
+repo_data = {}
+
+# Walk through the repository
+for root, _, files in os.walk(LOCAL_REPO_PATH):
+    for file in files:
+        file_path = os.path.join(root, file)
+        
+        # Read file content (in text mode, skipping binaries)
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except (UnicodeDecodeError, IsADirectoryError):
+            content = None  # Skip binary files
+        
+        # Store relative path and content
+        repo_data[os.path.relpath(file_path, LOCAL_REPO_PATH)] = content
+
+# Save data to a JSON file
+output_file = "repo_data.json"
+with open(output_file, "w", encoding="utf-8") as json_file:
+    json.dump(repo_data, json_file, indent=4)
+
+print(f"Repository data has been saved to {output_file}")
